@@ -1,8 +1,8 @@
 .DS_Store
 
 # Compiled versions
-build
-assets
+dev/assets
+release/assets
 
 # Dependency directory
 node_modules

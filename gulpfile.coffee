@@ -1,4 +1,5 @@
 gulp = require("gulp")
+notify= require("gulp-notify")
 sourcemaps = require("gulp-sourcemaps")
 rename = require("gulp-rename")
 sass = require("gulp-sass")
@@ -6,48 +7,94 @@ autoprefixer = require("gulp-autoprefixer")
 minify_css = require("gulp-minify-css")
 browserify = require("gulp-browserify")
 uglify = require("gulp-uglify")
+define_module = require("gulp-define-module")
 concat = require("gulp-concat")
 image_min = require("gulp-imagemin")
 cache = require("gulp-cache")
-svg_min = require "gulp-svgmin"
-# livereload = require("gulp-livereload")
+svg_min = require("gulp-svgmin")
+watch = require("gulp-watch")
+server = require("live-server")
 
 # Styles
 gulp.task "styles", ->
-  gulp.src "src/stylesheets/main.scss"
+  gulp.src "src/stylesheets/development.scss"
+    .pipe sourcemaps.init()
     .pipe sass()
+    .pipe sourcemaps.write()
     .pipe autoprefixer("last 2 version", "safari 5", "ie 8", "ie 9", "opera 12.1", "ios 6", "android 4")
-    .pipe gulp.dest("assets/css")
-    .pipe rename(suffix: ".min")
-    .pipe minify_css()
-    # .pipe(livereload(server))
-    .pipe gulp.dest("assets/css")
+    .pipe gulp.dest("dev/assets/css")
     .pipe notify(message: "Styles task complete")
 
 # Scripts
 gulp.task "scripts", ->
   gulp.src "src/javascripts/index.coffee", { read: false }
     .pipe browserify(
-      transform: ["coffeeify"]
-      extensions: [".coffee"])
+      debug: true
+      transform: ["coffeeify", "hbsfy"]
+      extensions: [".coffee", ".hbs"])
     .pipe concat("index.js")
-    .pipe rename(suffix: ".min")
-    .pipe uglify()
-    # .pipe(livereload(server)) #necessary?
-    .pipe gulp.dest("assets/js")
+    .pipe gulp.dest("dev/assets/js")
     .pipe notify(message: "Scripts task complete")
 
 # Images
 gulp.task "images", ->
   gulp.src "src/images/**/*"
     .pipe cache( image_min(optimizationLevel: 3, progressive: true, interlaced: true) )
-    .pipe gulp.dest("assets/images")
-    .pipe notify(message: "Images task complete")
+    .pipe gulp.dest("dev/assets/images")
+    .pipe notify(message: "Images smushed!")
 
 # Minify your SVG.
 gulp.task "svg", ->
   gulp.src "src/vectors/*.svg"
     .pipe svg_min()
-    .pipe gulp.dest "assets/vectors"
+    .pipe gulp.dest "dev/assets/vectors"
+    .pipe notify(message: "SVG smushed!")
+
+# Build everything and smush it!
+gulp.task "build", ->
+  gulp.src "src/stylesheets/production.scss"
+    .pipe sass()
+    .pipe autoprefixer("last 2 version", "safari 5", "ie 8", "ie 9", "opera 12.1", "ios 6", "android 4")
+    .pipe rename(suffix: ".min")
+    .pipe minify_css()
+    .pipe gulp.dest("release/assets")
+    .pipe notify(message: "Styles build complete")
+
+  gulp.src "src/javascripts/index.coffee", { read: false }
+    .pipe browserify(
+      transform: ["coffeeify", "hbsfy"]
+      extensions: [".coffee", ".hbs"])
+    .pipe concat("index.js")
+    .pipe rename(suffix: ".min")
+    .pipe uglify()
+    .pipe gulp.dest("release/assets")
+    .pipe notify(message: "JS smushed!")
+
+  gulp.src "src/vectors/*.svg"
+    .pipe svg_min()
+    .pipe gulp.dest "release/assets"
+    .pipe notify(message: "SVG smush complete")
+
+  gulp.src "src/images/**/*"
+    .pipe cache( image_min(optimizationLevel: 3, progressive: true, interlaced: true) )
+    .pipe gulp.dest("release/assets")
+    .pipe notify(message: "Images smushed!")
+
+# Watch
+gulp.task 'watch', ->
+
+  server.start 8080, "./dev", true
+
+  # Watch .scss files
+  # watch 'src/styles/**/*.scss', (event) ->
+  #   console.log 'File ' + event.path + ' was ' + event.type + ', running tasks...'
+  #   gulp.run 'styles'
+
+
+  # # Watch image files
+  # gulp.watch 'src/images/**/*', (event) ->
+  #   console.log 'File ' + event.path + ' was ' + event.type + ', running tasks...'
+  #   gulp.run 'images'
+
 
 gulp.task 'default', ['styles', 'scripts', 'images', 'svg']

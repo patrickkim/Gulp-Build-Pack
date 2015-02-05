@@ -5,10 +5,6 @@ footer, header, hgroup, menu, nav, section, time, mark, audio, video { margin: 0
 article, aside, figure, footer, header, hgroup, nav, section { display: block; }
 
 // Scaffold
-// Prevent text resizing on changing orientation
-html { -webkit-text-size-adjust: none; }
-::-webkit-scrollbar { width: 1px; }
-
 * {
   box-sizing: border-box;
 }
