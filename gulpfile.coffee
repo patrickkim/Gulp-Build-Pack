@@ -83,7 +83,7 @@ gulp.task "svg", ->
 gulp.task "build", ["clean_build"], ->
 
   gulp.src "src/html/*.html"
-    .pipe html_replace()
+    .pipe process_html()
     .pipe gulp.dest("release")
     .pipe notify(message: "HTML ready!")
 
