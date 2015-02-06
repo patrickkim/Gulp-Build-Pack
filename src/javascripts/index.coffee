@@ -6,3 +6,4 @@ $ = Backbone.$ = window.$
 
 $ ->
   App.initialize()
+  console.log "testing"

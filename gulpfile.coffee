@@ -1,20 +1,19 @@
-gulp = require("gulp")
-notify= require("gulp-notify")
-sourcemaps = require("gulp-sourcemaps")
-rename = require("gulp-rename")
-sass = require("gulp-sass")
-autoprefixer = require("gulp-autoprefixer")
-minify_css = require("gulp-minify-css")
-browserify = require("gulp-browserify")
-uglify = require("gulp-uglify")
+gulp          = require("gulp")
+notify        = require("gulp-notify")
+sourcemaps    = require("gulp-sourcemaps")
+rename        = require("gulp-rename")
+sass          = require("gulp-sass")
+autoprefixer  = require("gulp-autoprefixer")
+minify_css    = require("gulp-minify-css")
+browserify    = require("gulp-browserify")
+uglify        = require("gulp-uglify")
 define_module = require("gulp-define-module")
-concat = require("gulp-concat")
-image_min = require("gulp-imagemin")
-cache = require("gulp-cache")
-svg_min = require("gulp-svgmin")
-rimraf = require "gulp-rimraf"
-# watch = require("gulp-watch")
-# server = require("live-server")
+concat        = require("gulp-concat")
+image_min     = require("gulp-imagemin")
+cache         = require("gulp-cache")
+svg_min       = require("gulp-svgmin")
+rimraf        = require "gulp-rimraf"
+# watch       = require("gulp-watch")
 
 # Refresh everything
 gulp.task "clean_styles", ->
@@ -112,18 +111,9 @@ gulp.task "build", ->
 
 # Watch
 gulp.task 'watch', ->
-
-  server.start 8080, "./dev", true
-
-  # Watch .scss files
-  # watch 'src/styles/**/*.scss', (event) ->
-  #   console.log 'File ' + event.path + ' was ' + event.type + ', running tasks...'
-  #   gulp.run 'styles'
-
-  # # Watch image files
-  # gulp.watch 'src/images/**/*', (event) ->
-  #   console.log 'File ' + event.path + ' was ' + event.type + ', running tasks...'
-  #   gulp.run 'images'
+  gulp.watch 'src/styles/**/*.scss', ["styles"]
+  gulp.watch 'src/javascripts/**/*', ["scripts"]
+  gulp.watch 'src/html/**/*.html', ["prep_html"]
 
 
 gulp.task 'default', ['prep_html', 'styles', 'scripts', 'images', 'svg']
