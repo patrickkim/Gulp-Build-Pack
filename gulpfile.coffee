@@ -13,7 +13,7 @@ image_min     = require("gulp-imagemin")
 cache         = require("gulp-cache")
 svg_min       = require("gulp-svgmin")
 rimraf        = require "gulp-rimraf"
-# watch       = require("gulp-watch")
+process_html  = require "gulp-processhtml"
 
 # Refresh everything
 gulp.task "clean_styles", ->
@@ -26,11 +26,15 @@ gulp.task "clean_scripts", ->
     .pipe rimraf("dev/assets/js")
     .pipe notify(message: "Clean up js")
 
+gulp.task "clean_build", ->
+  gulp.src "release", { read: false }
+    .pipe rimraf("release")
+    .pipe notify(message: "Prepping new build")
+
 #HTML
 gulp.task "prep_html", ->
   gulp.src "src/html/*.html"
     .pipe gulp.dest("dev")
-
 
 # Styles
 gulp.task "styles", ["clean_styles"],  ->
@@ -42,7 +46,6 @@ gulp.task "styles", ["clean_styles"],  ->
     .pipe rename("main.css")
     .pipe gulp.dest("dev/assets/css")
     .pipe notify(message: "Styles task complete")
-
 
 #vendor scripts
 gulp.task "vendor_scripts", ->
@@ -77,41 +80,44 @@ gulp.task "svg", ->
     .pipe notify(message: "SVG smushed!")
 
 # Build everything and smush it!
-gulp.task "build", ->
+gulp.task "build", ["clean_build"], ->
+
+  gulp.src "src/html/*.html"
+    .pipe html_replace()
+    .pipe gulp.dest("release")
+    .pipe notify(message: "HTML ready!")
+
   gulp.src "src/stylesheets/production.scss"
     .pipe sass()
     .pipe autoprefixer("last 2 version", "safari 5", "ie 8", "ie 9", "opera 12.1", "ios 6", "android 4")
-    .pipe rename("main.min.css")
     .pipe minify_css()
+    .pipe rename("main.min.css")
     .pipe gulp.dest("release/assets")
     .pipe notify(message: "Styles build complete")
-
-  gulp.src "src/html/*.html"
-    .pipe gulp.dest("release")
 
   gulp.src "src/javascripts/index.coffee", { read: false }
     .pipe browserify(
       transform: ["coffeeify", "hbsfy"]
-      extensions: [".coffee", ".hbs"])
-    .pipe concat("bundle.js")
-    .pipe rename(suffix: ".min")
+      extensions: [".coffee", ".hbs"]
+      requires: ["backbone", "underscore"])
+    .pipe concat("bundle.min.js")
     .pipe uglify()
     .pipe gulp.dest("release/assets")
-    .pipe notify(message: "JS smushed!")
+    .pipe notify(message: "JS ready!")
 
   gulp.src "src/vectors/*.svg"
     .pipe svg_min()
     .pipe gulp.dest "release/assets"
-    .pipe notify(message: "SVG smush complete")
+    .pipe notify(message: "SVG ready!")
 
   gulp.src "src/images/**/*"
     .pipe cache( image_min(optimizationLevel: 3, progressive: true, interlaced: true) )
     .pipe gulp.dest("release/assets")
-    .pipe notify(message: "Images smushed!")
+    .pipe notify(message: "Images ready!")
 
 # Watch
 gulp.task 'watch', ->
-  gulp.watch 'src/styles/**/*.scss', ["styles"]
+  gulp.watch 'src/stylesheets/**/*.scss', ["styles"]
   gulp.watch 'src/javascripts/**/*', ["scripts"]
   gulp.watch 'src/html/**/*.html', ["prep_html"]
 
