@@ -12,24 +12,18 @@ concat        = require("gulp-concat")
 image_min     = require("gulp-imagemin")
 cache         = require("gulp-cache")
 svg_min       = require("gulp-svgmin")
-rimraf        = require "gulp-rimraf"
+del           = require "del"
 process_html  = require "gulp-processhtml"
 
 # Refresh everything
 gulp.task "clean_styles", ->
-  gulp.src "dev/assets/css", { read: false }
-    .pipe rimraf("dev/assets/css")
-    .pipe notify(message: "Clean up css")
+  del("dev/assets/css")
 
 gulp.task "clean_scripts", ->
-  gulp.src "dev/assets/js", { read: false }
-    .pipe rimraf("dev/assets/js")
-    .pipe notify(message: "Clean up js")
+  del("dev/assets/js")
 
 gulp.task "clean_build", ->
-  gulp.src "release", { read: false }
-    .pipe rimraf("release")
-    .pipe notify(message: "Prepping new build")
+  del("release")
 
 #HTML
 gulp.task "prep_html", ->
