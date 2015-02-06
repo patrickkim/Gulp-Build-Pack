@@ -1,8 +1,10 @@
-template = require("./templates/test")
+test_view = require "./views/test_view"
 
 App =
-  start: ->
-    console.log "app started! again"
-    console.log template(description: "hello")
+  initialize: (options) ->
+    @_setup_views(options)
+
+  _setup_views: (options) ->
+    App.view = new test_view(el: "#application")
 
 module.exports = App

@@ -1,2 +1,8 @@
-App = require('./app')
-App.start()
+Backbone = require "backbone"
+window.App = require "./app"
+
+# Set Backbone.$ to window.$
+$ = Backbone.$ = window.$
+
+$ ->
+  App.initialize()
